@@ -6,10 +6,13 @@ export class Product {
     id: number;
 
     @Column()
-    pics: { 
-        main: string;
-        others: string[]
-    };
+    // pics: { 
+    //     main: string;
+    //     others: string[]
+    // };
+
+    @Column()
+    pic: string;
 
     @Column()
     name: string;
@@ -20,10 +23,10 @@ export class Product {
     @Column()
     price: string;
 
-    @Column()
+    @Column("text", { array: true })
     colors: string[];
 
-    @Column()
+    @Column("text", { array: true })
     sizes: string[];
 
     @Column()

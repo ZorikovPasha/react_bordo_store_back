@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 
@@ -17,9 +18,21 @@ export class AuthService {
         return null
     }
 
+    makeJwtData(data: { id: number, email: string }) {
+        const payload = { email: data.email, sub: data.id }
+        return this.jwtService.sign(payload)
+    }
+
     async login(user: User) {
         const { password, ...data } = user
-        const payload = { email: user.email, sub: user.id }
-        return { ...data, access_token: this.jwtService.sign(payload) }
+        return { ...data, access_token: this.makeJwtData(data) }
+    }
+    async register(dto: CreateUserDto) {
+        try {
+            const { password, ...user } = await this.userService.create(dto)
+            return { ...user, access_token: this.makeJwtData(user) }
+        } catch (error) {
+            throw new ForbiddenException("An error occured during registration")
+        }
     }
 }
